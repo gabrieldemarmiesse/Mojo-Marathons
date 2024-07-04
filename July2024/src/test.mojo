@@ -2,6 +2,7 @@ from testing import assert_almost_equal
 import benchmark
 from algorithm import vectorize
 from time import now
+from pathlib import Path
 
 alias SCENARIOS = List(
     InlineArray[Int, 3](1, 1, 1),
@@ -61,54 +62,76 @@ fn test_matmul[MatMul: MatmulSignature]() raises:
         print("✅ Passed test with M =", M, ", N =", N, ", K =", K)
 
 
-fn bench_matmul[MatMul: MatmulSignature]() raises:
-    @parameter
-    for i in range(len(dtypes_to_test)):
+fn bench_matmul[MatMul: MatmulSignature](output_filename: String) raises:
+    with open(Path("./" + output_filename + ".csv"), mode="w+") as f:
+
+        # Add the header with one dtype per column
+        f.write(String("M, N, K, "))
+        for i in range(len(dtypes_to_test)):
+            f.write(str(dtypes_to_test[i]))
+            if i == len(dtypes_to_test) - 1:
+                f.write(String("\n"))
+            else:
+                f.write(String(", "))
 
         @parameter
         for j in range(1, len(SCENARIOS)):  # skip the first, not interesting
-            alias CurrentDType = dtypes_to_test[i]
             alias dimensions = SCENARIOS[j]
 
-            var res = Matrix[CurrentDType, dimensions[0], dimensions[1]]()
-            var a = Matrix[CurrentDType, dimensions[0], dimensions[2]].rand()
-            var b = Matrix[CurrentDType, dimensions[2], dimensions[1]].rand()
+            f.write(str(dimensions[0]) + ", " + str(dimensions[1]) + ", " + str(dimensions[2]) + ", ")
 
             @parameter
-            fn matmul_this():
-                # We don't memset to 0 for benchmarking since it has no influence on the performance
-                # of the matmul operation.
-                MatMul(res, a, b)
+            for i in range(len(dtypes_to_test)):
 
-            benchmark.clobber_memory()
-            var report = benchmark.run[matmul_this]()
+                alias CurrentDType = dtypes_to_test[i]
 
-            keep(res)
-            keep(a)
-            keep(b)
-            var g_ops = Float64(
-                dimensions[0] * dimensions[1] * dimensions[2] * 2
-            ) / 1e9
+                var res = Matrix[CurrentDType, dimensions[0], dimensions[1]]()
+                var a = Matrix[CurrentDType, dimensions[0], dimensions[2]].rand()
+                var b = Matrix[CurrentDType, dimensions[2], dimensions[1]].rand()
 
-            var op_type: String
-            if CurrentDType.is_integral():
-                op_type = "I"
-            else:
-                op_type = "F"
+                @parameter
+                fn matmul_this():
+                    # We don't memset to 0 for benchmarking since it has no influence on the performance
+                    # of the matmul operation.
+                    MatMul(res, a, b)
 
-            print(
-                "Average G"
-                + op_type
-                + "op/s:"
-                + str(g_ops / report.mean(unit="s")),
-                str(CurrentDType),
-                "dimensions: M="
-                + str(dimensions[0])
-                + ", N="
-                + str(dimensions[1])
-                + ", K="
-                + str(dimensions[2]),
-            )
+                benchmark.clobber_memory()
+                var report = benchmark.run[matmul_this]()
+
+                keep(res)
+                keep(a)
+                keep(b)
+                var g_ops = Float64(
+                    dimensions[0] * dimensions[1] * dimensions[2] * 2
+                ) / 1e9
+
+                var op_type: String
+                if CurrentDType.is_integral():
+                    op_type = "I"
+                else:
+                    op_type = "F"
+                
+                var gops_per_second = g_ops / report.mean(unit="s")
+
+                f.write(str(gops_per_second))
+                if i != len(dtypes_to_test) - 1:
+                    f.write(String(", "))
+                else:
+                    f.write(String("\n"))
+
+                print(
+                    "Average G"
+                    + op_type
+                    + "op/s:"
+                    + str(gops_per_second),
+                    str(CurrentDType),
+                    "dimensions: M="
+                    + str(dimensions[0])
+                    + ", N="
+                    + str(dimensions[1])
+                    + ", K="
+                    + str(dimensions[2]),
+                )
 
 
 fn keep(res: Matrix):
