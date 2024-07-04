@@ -6,6 +6,10 @@ from pathlib import Path
 
 alias SCENARIOS = List(
     InlineArray[Int, 3](1, 1, 1),
+    InlineArray[Int, 3](4, 4, 4),
+    InlineArray[Int, 3](8, 8, 8),
+    InlineArray[Int, 3](32, 32, 32),
+    InlineArray[Int, 3](64, 64, 64),
     InlineArray[Int, 3](1, 47, 97),
     InlineArray[Int, 3](53, 1, 101),
     InlineArray[Int, 3](17, 59, 103),
