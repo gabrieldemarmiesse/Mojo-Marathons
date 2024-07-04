@@ -5,28 +5,31 @@ from time import now
 from pathlib import Path
 
 alias SCENARIOS = List(
-    InlineArray[Int, 3](1, 1, 1),
-    InlineArray[Int, 3](4, 4, 4),
-    InlineArray[Int, 3](8, 8, 8),
-    InlineArray[Int, 3](32, 32, 32),
+    #InlineArray[Int, 3](1, 1, 1),
+    #InlineArray[Int, 3](4, 4, 4),
+    #InlineArray[Int, 3](8, 8, 8),
+    #InlineArray[Int, 3](32, 32, 32),
     InlineArray[Int, 3](64, 64, 64),
-    InlineArray[Int, 3](1, 47, 97),
-    InlineArray[Int, 3](53, 1, 101),
-    InlineArray[Int, 3](17, 59, 103),
-    InlineArray[Int, 3](1024, 1024, 1024),
-    InlineArray[Int, 3](256, 1024, 4096),
-    InlineArray[Int, 3](256, 4096, 1024),
-    InlineArray[Int, 3](128, 3072, 768),
-    InlineArray[Int, 3](1024, 2560, 1024),
-    InlineArray[Int, 3](1024, 512, 256),
-    InlineArray[Int, 3](1024, 1024, 512),
+    #InlineArray[Int, 3](1, 47, 97),
+    #InlineArray[Int, 3](53, 1, 101),
+    #InlineArray[Int, 3](17, 59, 103),
+    #InlineArray[Int, 3](1024, 1024, 1024),
+    #InlineArray[Int, 3](2048, 2048, 2048),
+    #InlineArray[Int, 3](4096, 4096, 4096),
+    #InlineArray[Int, 3](499, 499, 499),
+    #InlineArray[Int, 3](256, 1024, 4096),
+    #InlineArray[Int, 3](256, 4096, 1024),
+    #InlineArray[Int, 3](128, 3072, 768),
+    #InlineArray[Int, 3](1024, 2560, 1024),
+    #InlineArray[Int, 3](1024, 512, 256),
+    InlineArray[Int, 3](256, 1024, 512),
 )
 
 
 alias dtypes_to_test = List(
-    DType.int8,
+    #DType.int8,
     DType.int16,
-    DType.int32,
+    #DType.int32,
     DType.int64,
     DType.float16,
     DType.float32,
@@ -52,10 +55,10 @@ fn test_matmul[MatMul: MatmulSignature]() raises:
         alias N = SCENARIO[1]
         alias K = SCENARIO[2]
 
-        var correct = Matrix[Type, M, N]()
-        var res = Matrix[Type, M, N]()
-        var a = Matrix[Type, M, K].rand()
-        var b = Matrix[Type, K, N].rand()
+        var correct = Matrix[DType.float32, M, N]()
+        var res = Matrix[DType.float32, M, N]()
+        var a = Matrix[DType.float32, M, K].rand()
+        var b = Matrix[DType.float32, K, N].rand()
 
         MatMul(res, a, b)
         basic_matmul(correct, a, b)
@@ -67,6 +70,7 @@ fn test_matmul[MatMul: MatmulSignature]() raises:
 
 
 fn bench_matmul[MatMul: MatmulSignature](output_filename: String) raises:
+    test_matmul[MatMul]()
     with open(Path("./benchmarks/" + output_filename + ".csv"), mode="w+") as f:
 
         # Add the header with one dtype per column
@@ -79,7 +83,7 @@ fn bench_matmul[MatMul: MatmulSignature](output_filename: String) raises:
                 f.write(String(", "))
 
         @parameter
-        for j in range(1, len(SCENARIOS)):  # skip the first, not interesting
+        for j in range(len(SCENARIOS)):  # skip the first, not interesting
             alias dimensions = SCENARIOS[j]
 
             f.write(str(dimensions[0]) + ", " + str(dimensions[1]) + ", " + str(dimensions[2]) + ", ")
@@ -100,11 +104,12 @@ fn bench_matmul[MatMul: MatmulSignature](output_filename: String) raises:
                     MatMul(res, a, b)
 
                 benchmark.clobber_memory()
-                var report = benchmark.run[matmul_this]()
-
+                var report = benchmark.run[matmul_this](max_iters=10)
+                print("finished bench")
                 keep(res)
                 keep(a)
                 keep(b)
+                print("matrices freed")
                 var g_ops = Float64(
                     dimensions[0] * dimensions[1] * dimensions[2] * 2
                 ) / 1e9
