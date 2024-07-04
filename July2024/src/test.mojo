@@ -63,7 +63,7 @@ fn test_matmul[MatMul: MatmulSignature]() raises:
 
 
 fn bench_matmul[MatMul: MatmulSignature](output_filename: String) raises:
-    with open(Path("./" + output_filename + ".csv"), mode="w+") as f:
+    with open(Path("./benchmarks/" + output_filename + ".csv"), mode="w+") as f:
 
         # Add the header with one dtype per column
         f.write(String("M, N, K, "))
