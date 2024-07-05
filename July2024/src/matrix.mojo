@@ -36,5 +36,6 @@ struct Matrix[Type: DType, rows: Int, cols: Int]:
     fn store[Nelts: Int](inout self, y: Int, x: Int, value: SIMD[Type, Nelts]):
         SIMD[size=Nelts].store(self.data, y * cols + x, value)
 
+    @always_inline
     fn get_pointer(self, y: Int, x: Int) -> DTypePointer[Type]:
         return self.data + y * cols + x
