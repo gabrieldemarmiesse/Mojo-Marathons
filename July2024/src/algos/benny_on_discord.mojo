@@ -3,7 +3,12 @@ from algorithm import parallel_memcpy
 
 
 fn calculate_block[
-    Type: DType, M: Int, N: Int, K: Int, //, BM: Int, current_block_size_n: Int
+    Type: DType,
+    M: Int,
+    N: Int,
+    K: Int, //,
+    current_block_size_m: Int,
+    current_block_size_n: Int,
 ](
     start_of_block_m: Int,
     start_of_block_n: Int,
@@ -11,13 +16,15 @@ fn calculate_block[
     a: Matrix[Type, M, K],
     b: Matrix[Type, K, N],
 ):
-    var acc = stack_allocation[BM * current_block_size_n, Type]()
-    memset_zero(acc, BM * current_block_size_n)
+    var acc = stack_allocation[
+        current_block_size_m * current_block_size_n, Type
+    ]()
+    memset_zero(acc, current_block_size_m * current_block_size_n)
 
     for k in range(K):
         var b = b.data + k * N
 
-        for m in range(BM):
+        for m in range(current_block_size_m):
             var a_val = a[start_of_block_m + m, k]
             var acc = acc + m * current_block_size_n
 
@@ -32,7 +39,7 @@ fn calculate_block[
 
             vectorize[inner_n, simdwidthof[Type](), size=current_block_size_n]()
 
-    for m in range(BM):
+    for m in range(current_block_size_m):
         parallel_memcpy(
             res.data + (start_of_block_m + m) * N + start_of_block_n,
             acc + m * current_block_size_n,
