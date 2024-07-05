@@ -41,7 +41,7 @@ fn calculate_block[
 
     for m in range(current_block_size_m):
         parallel_memcpy(
-            res.data + (start_of_block_m + m) * N + start_of_block_n,
+            res.get_pointer(start_of_block_m + m, start_of_block_n),
             acc + m * current_block_size_n,
             current_block_size_n,
         )
