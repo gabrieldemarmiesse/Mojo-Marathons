@@ -22,7 +22,7 @@ fn calculate_block[
     memset_zero(acc, current_block_size_m * current_block_size_n)
 
     for k in range(K):
-        var left_of_b_at_k = b.data + k * N
+        var left_of_b_at_k = b.get_pointer(k, 0)
 
         for m in range(current_block_size_m):
             var a_val = a[start_of_block_m + m, k]
