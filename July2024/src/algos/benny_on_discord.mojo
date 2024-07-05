@@ -22,7 +22,7 @@ fn calculate_block[
     memset_zero(acc, current_block_size_m * current_block_size_n)
 
     for k in range(K):
-        var b = b.data + k * N
+        var left_of_b_at_k = b.data + k * N
 
         for m in range(current_block_size_m):
             var a_val = a[start_of_block_m + m, k]
@@ -33,7 +33,7 @@ fn calculate_block[
                     acc,
                     n,
                     SIMD[size=simd_size]
-                    .load(b, start_of_block_n + n)
+                    .load(left_of_b_at_k, start_of_block_n + n)
                     .fma(a_val, SIMD[size=simd_size].load(acc, n)),
                 )
 
