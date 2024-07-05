@@ -44,7 +44,7 @@ fn matmul[
 
     fn process_block[current_block_size_m: Int](m_index_of_block: Int) capturing:
         @parameter
-        for bn in range(0, N if current_block_size_m else 0, TARGET_BLOCK_SIZE_N):
+        for bn in range(0, N, TARGET_BLOCK_SIZE_N):
             calculate_block[current_block_size_m, min(TARGET_BLOCK_SIZE_N, N - bn)](
                 m_index_of_block * current_block_size_m 
                 if current_block_size_m == TARGET_BLOCK_SIZE_M 
@@ -53,4 +53,8 @@ fn matmul[
             )
 
     parallelize[process_block[TARGET_BLOCK_SIZE_M]](M // TARGET_BLOCK_SIZE_M)
-    process_block[M % TARGET_BLOCK_SIZE_M](M - M % TARGET_BLOCK_SIZE_M)
+
+    alias remainder = M % TARGET_BLOCK_SIZE_M
+    @parameter
+    if remainder:
+        process_block[M % TARGET_BLOCK_SIZE_M](M - M % TARGET_BLOCK_SIZE_M)
