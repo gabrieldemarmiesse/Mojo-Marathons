@@ -13,15 +13,15 @@ struct Matrix[Type: DType, rows: Int, cols: Int]:
 
     fn __init__(inout self):
         self.data = DTypePointer[Type].alloc(Self.Elements)
-        print("pointer value", int(self.data))
+        #print("pointer value", int(self.data))
         memset_zero(self.data, Self.Elements)
 
     fn __init__(inout self, data: DTypePointer[Type]):
         self.data = data
-        print("pointer value", int(self.data))
+        #print("pointer value", int(self.data))
 
     fn __del__(owned self):
-        print("freeing matrix with pointer", int(self.data))
+        #print("freeing matrix with pointer", int(self.data))
         self.data.free()
 
     fn __getitem__(self, y: Int, x: Int) -> Scalar[Type]:

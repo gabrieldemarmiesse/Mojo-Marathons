@@ -5,31 +5,31 @@ from time import now
 from pathlib import Path
 
 alias SCENARIOS = List(
-    #InlineArray[Int, 3](1, 1, 1),
-    #InlineArray[Int, 3](4, 4, 4),
-    #InlineArray[Int, 3](8, 8, 8),
-    #InlineArray[Int, 3](32, 32, 32),
+    InlineArray[Int, 3](1, 1, 1),
+    InlineArray[Int, 3](4, 4, 4),
+    InlineArray[Int, 3](8, 8, 8),
+    InlineArray[Int, 3](32, 32, 32),
     InlineArray[Int, 3](64, 64, 64),
-    #InlineArray[Int, 3](1, 47, 97),
-    #InlineArray[Int, 3](53, 1, 101),
-    #InlineArray[Int, 3](17, 59, 103),
-    #InlineArray[Int, 3](1024, 1024, 1024),
-    #InlineArray[Int, 3](2048, 2048, 2048),
-    #InlineArray[Int, 3](4096, 4096, 4096),
-    #InlineArray[Int, 3](499, 499, 499),
-    #InlineArray[Int, 3](256, 1024, 4096),
-    #InlineArray[Int, 3](256, 4096, 1024),
-    #InlineArray[Int, 3](128, 3072, 768),
-    #InlineArray[Int, 3](1024, 2560, 1024),
-    #InlineArray[Int, 3](1024, 512, 256),
+    InlineArray[Int, 3](1, 47, 97),
+    InlineArray[Int, 3](53, 1, 101),
+    InlineArray[Int, 3](17, 59, 103),
+    InlineArray[Int, 3](1024, 1024, 1024),
+    InlineArray[Int, 3](2048, 2048, 2048),
+    InlineArray[Int, 3](4096, 4096, 4096),
+    InlineArray[Int, 3](499, 499, 499),
+    InlineArray[Int, 3](256, 1024, 4096),
+    InlineArray[Int, 3](256, 4096, 1024),
+    InlineArray[Int, 3](128, 3072, 768),
+    InlineArray[Int, 3](1024, 2560, 1024),
+    InlineArray[Int, 3](1024, 512, 256),
     InlineArray[Int, 3](256, 1024, 512),
 )
 
 
 alias dtypes_to_test = List(
-    #DType.int8,
+    DType.int8,
     DType.int16,
-    #DType.int32,
+    DType.int32,
     DType.int64,
     DType.float16,
     DType.float32,
@@ -104,12 +104,10 @@ fn bench_matmul[MatMul: MatmulSignature](output_filename: String) raises:
                     MatMul(res, a, b)
 
                 benchmark.clobber_memory()
-                var report = benchmark.run[matmul_this](max_iters=10)
-                print("finished bench")
+                var report = benchmark.run[matmul_this](max_iters=100)
                 keep(res)
                 keep(a)
                 keep(b)
-                print("matrices freed")
                 var g_ops = Float64(
                     dimensions[0] * dimensions[1] * dimensions[2] * 2
                 ) / 1e9
