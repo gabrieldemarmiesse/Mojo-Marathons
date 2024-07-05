@@ -3,6 +3,7 @@ import benchmark
 from algorithm import vectorize
 from time import now
 from pathlib import Path
+import os
 
 alias SCENARIOS = List(
     # InlineArray[Int, 3](1, 1, 1),
@@ -71,7 +72,16 @@ fn test_matmul[MatMul: MatmulSignature]() raises:
 
 fn bench_matmul[MatMul: MatmulSignature](output_filename: String) raises:
     test_matmul[MatMul]()
-    with open(Path("./benchmarks/" + output_filename + ".csv"), mode="w+") as f:
+    with open(
+        Path(
+            "./"
+            + os.getenv("RESULT_BENCHMARK_PREFIX")
+            + "benchmarks/"
+            + output_filename
+            + ".csv"
+        ),
+        mode="w+",
+    ) as f:
         # Add the header with one dtype per column
         f.write(String("M, N, K, "))
         for i in range(len(dtypes_to_test)):
