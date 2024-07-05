@@ -52,14 +52,16 @@ fn matmul[
                 min(TARGET_BLOCK_SIZE_N, N - start_of_block_n),
             ](start_of_block_m, start_of_block_n, res, a, b)
 
-    fn process_block[
+    fn process_block_of_target_size[
         current_block_size_m: Int
     ](m_index_of_block: Int) capturing:
         process_block_any_size[TARGET_BLOCK_SIZE_M](
             start_of_block_m=m_index_of_block * current_block_size_m
         )
 
-    parallelize[process_block[TARGET_BLOCK_SIZE_M]](M // TARGET_BLOCK_SIZE_M)
+    parallelize[process_block_of_target_size[TARGET_BLOCK_SIZE_M]](
+        M // TARGET_BLOCK_SIZE_M
+    )
 
     alias remainder = M % TARGET_BLOCK_SIZE_M
 
