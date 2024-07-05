@@ -28,13 +28,15 @@ fn calculate_block[
             var a_val = a[start_of_block_m + m, k]
             var acc = acc + m * current_block_size_n
 
-            fn inner_n[simd_size: Int](n: Int) capturing:
+            fn inner_n[simd_size: Int](position_within_n: Int) capturing:
                 SIMD[size=simd_size].store(
                     acc,
-                    n,
+                    position_within_n,
                     SIMD[size=simd_size]
-                    .load(left_of_b_at_k, start_of_block_n + n)
-                    .fma(a_val, SIMD[size=simd_size].load(acc, n)),
+                    .load(left_of_b_at_k, start_of_block_n + position_within_n)
+                    .fma(
+                        a_val, SIMD[size=simd_size].load(acc, position_within_n)
+                    ),
                 )
 
             vectorize[inner_n, simdwidthof[Type](), size=current_block_size_n]()
