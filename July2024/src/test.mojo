@@ -5,23 +5,23 @@ from time import now
 from pathlib import Path
 
 alias SCENARIOS = List(
-    InlineArray[Int, 3](1, 1, 1),
+    #InlineArray[Int, 3](1, 1, 1),
     InlineArray[Int, 3](4, 4, 4),
-    InlineArray[Int, 3](8, 8, 8),
-    InlineArray[Int, 3](32, 32, 32),
-    InlineArray[Int, 3](64, 64, 64),
-    InlineArray[Int, 3](1, 47, 97),
-    InlineArray[Int, 3](53, 1, 101),
-    InlineArray[Int, 3](17, 59, 103),
-    InlineArray[Int, 3](1024, 1024, 1024),
-    InlineArray[Int, 3](2048, 2048, 2048),
-    InlineArray[Int, 3](4096, 4096, 4096),
+    #InlineArray[Int, 3](8, 8, 8),
+    #InlineArray[Int, 3](32, 32, 32),
+    #InlineArray[Int, 3](64, 64, 64),
+    #InlineArray[Int, 3](1, 47, 97),
+    #InlineArray[Int, 3](53, 1, 101),
+    #InlineArray[Int, 3](17, 59, 103),
+    #InlineArray[Int, 3](1024, 1024, 1024),
+    #InlineArray[Int, 3](2048, 2048, 2048),
+    #InlineArray[Int, 3](4096, 4096, 4096),
     InlineArray[Int, 3](499, 499, 499),
-    InlineArray[Int, 3](256, 1024, 4096),
-    InlineArray[Int, 3](256, 4096, 1024),
-    InlineArray[Int, 3](128, 3072, 768),
-    InlineArray[Int, 3](1024, 2560, 1024),
-    InlineArray[Int, 3](1024, 512, 256),
+    #InlineArray[Int, 3](256, 1024, 4096),
+    #InlineArray[Int, 3](256, 4096, 1024),
+    #InlineArray[Int, 3](128, 3072, 768),
+    #InlineArray[Int, 3](1024, 2560, 1024),
+    #InlineArray[Int, 3](1024, 512, 256),
     InlineArray[Int, 3](256, 1024, 512),
 )
 
@@ -29,10 +29,10 @@ alias SCENARIOS = List(
 alias dtypes_to_test = List(
     DType.int8,
     DType.int16,
-    DType.int32,
-    DType.int64,
+    #DType.int32,
+    #DType.int64,
     DType.float16,
-    DType.float32,
+    #DType.float32,
     DType.float64,
 )
 

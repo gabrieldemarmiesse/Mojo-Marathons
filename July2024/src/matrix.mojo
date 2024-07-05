@@ -31,7 +31,7 @@ struct Matrix[Type: DType, rows: Int, cols: Int]:
         self.store[1](y, x, value)
 
     fn load[Nelts: Int](self, y: Int, x: Int) -> SIMD[Type, Nelts]:
-        return self.data.load[width=Nelts](y * cols + x)
+        return SIMD[size=Nelts].load(self.data, y * cols + x)
 
     fn store[Nelts: Int](inout self, y: Int, x: Int, value: SIMD[Type, Nelts]):
-        self.data.store[width=Nelts](y * cols + x, value)
+        SIMD[size=Nelts].store(self.data, y * cols + x, value)

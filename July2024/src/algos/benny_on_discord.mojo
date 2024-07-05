@@ -19,7 +19,7 @@ fn matmul[Type: DType, M: Int, N: Int, K: Int, //](inout res: Matrix[Type, M, N]
                 var acc = acc + m * BN
 
                 fn inner_n[W: Int](n: Int) capturing:
-                    acc.store[width=W](n, b.load[width=W](bn + n).fma(a_val, acc.load[width=W](n)))
+                    SIMD[size=W].store(acc, n, SIMD[size=W].load(b, bn + n).fma(a_val, SIMD[size=W].load(acc, n)))
 
                 vectorize[inner_n, simdwidthof[Type](), size=BN]()
 
