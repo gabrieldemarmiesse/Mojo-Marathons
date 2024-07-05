@@ -7,15 +7,14 @@
 # 1024, 1024, 512, 4.5770569940968624, 4.6373641069215221, 4.429498041861625
 
 
-
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import sys
 import matplotlib.colors
-def get_dataframes_with_identical_columns():
-        
 
+
+def get_dataframes_with_identical_columns():
     file1 = sys.argv[1]
     file2 = sys.argv[2]
 
@@ -33,26 +32,46 @@ def get_dataframes_with_identical_columns():
 def main():
     df1, df2 = get_dataframes_with_identical_columns()
 
-    df = ( df2 - df1) * 100 / df1
+    df = (df2 - df1) * 100 / df1
 
     # now we plot the percentage difference
     # the x axis is the column names (data types) and the y axis is the row names (M, N, K)
     df_without_mnk = df.drop(["M", " N", " K"], axis=1)
     color_limit = 50
-    norm = matplotlib.colors.TwoSlopeNorm(vmin=-color_limit, vcenter=0, vmax=color_limit)
-    plt.imshow(df_without_mnk.values, cmap='RdYlGn', interpolation='nearest',  norm=norm)
+    norm = matplotlib.colors.TwoSlopeNorm(
+        vmin=-color_limit, vcenter=0, vmax=color_limit
+    )
+    plt.imshow(
+        df_without_mnk.values, cmap="RdYlGn", interpolation="nearest", norm=norm
+    )
     plt.xticks(range(len(df_without_mnk.columns)), df_without_mnk.columns)
-    plt.yticks(range(len(df.index)), [f"{df1['M'][i]}, {df1[' N'][i]}, {df1[' K'][i]}" for i in range(len(df.index))])
+    plt.yticks(
+        range(len(df.index)),
+        [
+            f"{df1['M'][i]}, {df1[' N'][i]}, {df1[' K'][i]}"
+            for i in range(len(df.index))
+        ],
+    )
     plt.colorbar()
-
 
     # Annotate each cell with the numeric value
     for i in range(len(df_without_mnk)):
         for j in range(len(df_without_mnk.columns)):
-            plt.text(j, i, f"{df_without_mnk.values[i, j]:.1f}", ha='center', va='center', color='black')
+            plt.text(
+                j,
+                i,
+                f"{df_without_mnk.values[i, j]:.1f}",
+                ha="center",
+                va="center",
+                color="black",
+            )
 
-    plt.title(f'Improvements {sys.argv[1].removesuffix(".csv")} -> {sys.argv[2].removesuffix(".csv")}')
+    plt.title(
+        f'Improvements {sys.argv[1].removesuffix(".csv")} ->'
+        f' {sys.argv[2].removesuffix(".csv")}'
+    )
 
     plt.show()
+
 
 main()

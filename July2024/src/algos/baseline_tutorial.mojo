@@ -1,8 +1,6 @@
 from algorithm.functional import vectorize, parallelize
 
 
-
-
 fn matmul[
     Type: DType, M: Int, N: Int, K: Int, //
 ](inout C: Matrix[Type, M, N], A: Matrix[Type, M, K], B: Matrix[Type, K, N]):
@@ -17,11 +15,17 @@ fn matmul[
         for y in range(0, N, tile_y):
             for x in range(0, K, tile_x):
                 for k in range(y, y + tile_y):
+
                     @parameter
                     fn dot[nelts: Int](n: Int):
-                        C.store(m, n + x, C.load[nelts](m, n + x) + A[m, k] * B.load[nelts](k, n + x))
-                    vectorize[dot, nelts, size = tile_x]()
+                        C.store(
+                            m,
+                            n + x,
+                            C.load[nelts](m, n + x)
+                            + A[m, k] * B.load[nelts](k, n + x),
+                        )
 
+                    vectorize[dot, nelts, size=tile_x]()
 
     parallelize[calc_row](M, 8)
     print("done")

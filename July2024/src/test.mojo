@@ -5,23 +5,23 @@ from time import now
 from pathlib import Path
 
 alias SCENARIOS = List(
-    #InlineArray[Int, 3](1, 1, 1),
+    # InlineArray[Int, 3](1, 1, 1),
     InlineArray[Int, 3](4, 4, 4),
-    #InlineArray[Int, 3](8, 8, 8),
-    #InlineArray[Int, 3](32, 32, 32),
-    #InlineArray[Int, 3](64, 64, 64),
-    #InlineArray[Int, 3](1, 47, 97),
-    #InlineArray[Int, 3](53, 1, 101),
-    #InlineArray[Int, 3](17, 59, 103),
-    #InlineArray[Int, 3](1024, 1024, 1024),
-    #InlineArray[Int, 3](2048, 2048, 2048),
-    #InlineArray[Int, 3](4096, 4096, 4096),
+    # InlineArray[Int, 3](8, 8, 8),
+    # InlineArray[Int, 3](32, 32, 32),
+    # InlineArray[Int, 3](64, 64, 64),
+    # InlineArray[Int, 3](1, 47, 97),
+    # InlineArray[Int, 3](53, 1, 101),
+    # InlineArray[Int, 3](17, 59, 103),
+    # InlineArray[Int, 3](1024, 1024, 1024),
+    # InlineArray[Int, 3](2048, 2048, 2048),
+    # InlineArray[Int, 3](4096, 4096, 4096),
     InlineArray[Int, 3](499, 499, 499),
-    #InlineArray[Int, 3](256, 1024, 4096),
-    #InlineArray[Int, 3](256, 4096, 1024),
-    #InlineArray[Int, 3](128, 3072, 768),
-    #InlineArray[Int, 3](1024, 2560, 1024),
-    #InlineArray[Int, 3](1024, 512, 256),
+    # InlineArray[Int, 3](256, 1024, 4096),
+    # InlineArray[Int, 3](256, 4096, 1024),
+    # InlineArray[Int, 3](128, 3072, 768),
+    # InlineArray[Int, 3](1024, 2560, 1024),
+    # InlineArray[Int, 3](1024, 512, 256),
     InlineArray[Int, 3](256, 1024, 512),
 )
 
@@ -29,10 +29,10 @@ alias SCENARIOS = List(
 alias dtypes_to_test = List(
     DType.int8,
     DType.int16,
-    #DType.int32,
-    #DType.int64,
+    # DType.int32,
+    # DType.int64,
     DType.float16,
-    #DType.float32,
+    # DType.float32,
     DType.float64,
 )
 
@@ -72,7 +72,6 @@ fn test_matmul[MatMul: MatmulSignature]() raises:
 fn bench_matmul[MatMul: MatmulSignature](output_filename: String) raises:
     test_matmul[MatMul]()
     with open(Path("./benchmarks/" + output_filename + ".csv"), mode="w+") as f:
-
         # Add the header with one dtype per column
         f.write(String("M, N, K, "))
         for i in range(len(dtypes_to_test)):
@@ -86,16 +85,26 @@ fn bench_matmul[MatMul: MatmulSignature](output_filename: String) raises:
         for j in range(len(SCENARIOS)):  # skip the first, not interesting
             alias dimensions = SCENARIOS[j]
 
-            f.write(str(dimensions[0]) + ", " + str(dimensions[1]) + ", " + str(dimensions[2]) + ", ")
+            f.write(
+                str(dimensions[0])
+                + ", "
+                + str(dimensions[1])
+                + ", "
+                + str(dimensions[2])
+                + ", "
+            )
 
             @parameter
             for i in range(len(dtypes_to_test)):
-
                 alias CurrentDType = dtypes_to_test[i]
 
                 var res = Matrix[CurrentDType, dimensions[0], dimensions[1]]()
-                var a = Matrix[CurrentDType, dimensions[0], dimensions[2]].rand()
-                var b = Matrix[CurrentDType, dimensions[2], dimensions[1]].rand()
+                var a = Matrix[
+                    CurrentDType, dimensions[0], dimensions[2]
+                ].rand()
+                var b = Matrix[
+                    CurrentDType, dimensions[2], dimensions[1]
+                ].rand()
 
                 @parameter
                 fn matmul_this():
@@ -117,7 +126,7 @@ fn bench_matmul[MatMul: MatmulSignature](output_filename: String) raises:
                     op_type = "I"
                 else:
                     op_type = "F"
-                
+
                 var gops_per_second = g_ops / report.mean(unit="s")
 
                 f.write(str(gops_per_second))
@@ -127,10 +136,7 @@ fn bench_matmul[MatMul: MatmulSignature](output_filename: String) raises:
                     f.write(String("\n"))
 
                 print(
-                    "Average G"
-                    + op_type
-                    + "op/s:"
-                    + str(gops_per_second),
+                    "Average G" + op_type + "op/s:" + str(gops_per_second),
                     str(CurrentDType),
                     "dimensions: M="
                     + str(dimensions[0])
