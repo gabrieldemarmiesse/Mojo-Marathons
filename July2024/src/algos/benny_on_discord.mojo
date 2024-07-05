@@ -3,7 +3,7 @@ from algorithm import parallel_memcpy
 
 
 fn calculate_block[
-    Type: DType, M: Int, N: Int, K: Int, //, BM: Int, BN: Int
+    Type: DType, M: Int, N: Int, K: Int, //, BM: Int, current_block_size_n: Int
 ](
     start_of_block_m: Int,
     start_of_block_n: Int,
@@ -11,15 +11,15 @@ fn calculate_block[
     a: Matrix[Type, M, K],
     b: Matrix[Type, K, N],
 ):
-    var acc = stack_allocation[BM * BN, Type]()
-    memset_zero(acc, BM * BN)
+    var acc = stack_allocation[BM * current_block_size_n, Type]()
+    memset_zero(acc, BM * current_block_size_n)
 
     for k in range(K):
         var b = b.data + k * N
 
         for m in range(BM):
             var a_val = a[start_of_block_m + m, k]
-            var acc = acc + m * BN
+            var acc = acc + m * current_block_size_n
 
             fn inner_n[simd_size: Int](n: Int) capturing:
                 SIMD[size=simd_size].store(
@@ -30,13 +30,13 @@ fn calculate_block[
                     .fma(a_val, SIMD[size=simd_size].load(acc, n)),
                 )
 
-            vectorize[inner_n, simdwidthof[Type](), size=BN]()
+            vectorize[inner_n, simdwidthof[Type](), size=current_block_size_n]()
 
     for m in range(BM):
         parallel_memcpy(
             res.data + (start_of_block_m + m) * N + start_of_block_n,
-            acc + m * BN,
-            BN,
+            acc + m * current_block_size_n,
+            current_block_size_n,
         )
 
 
@@ -51,9 +51,12 @@ fn matmul[
     ](start_of_block_m: Int) capturing:
         @parameter
         for start_of_block_n in range(0, N, TARGET_BLOCK_SIZE_N):
+            alias current_block_size_n = min(
+                TARGET_BLOCK_SIZE_N, N - start_of_block_n
+            )
             calculate_block[
                 current_block_size_m,
-                min(TARGET_BLOCK_SIZE_N, N - start_of_block_n),
+                current_block_size_n,
             ](start_of_block_m, start_of_block_n, res, a, b)
 
     fn process_block_of_target_size(m_index_of_block: Int) capturing:
