@@ -42,19 +42,39 @@ fn matmul[
     alias TARGET_BLOCK_SIZE_N = 8  # L1 / sizeof[Type]
     alias TARGET_BLOCK_SIZE_M = 4  # L2 / sizeof[Type]
 
-    fn process_block[current_block_size_m: Int](m_index_of_block: Int) capturing:
+    fn process_block_any_size[
+        current_block_size_m: Int
+    ](start_of_block_m: Int) capturing:
         @parameter
         for start_of_block_n in range(0, N, TARGET_BLOCK_SIZE_N):
-            calculate_block[current_block_size_m, min(TARGET_BLOCK_SIZE_N, N - start_of_block_n)](
-                m_index_of_block * current_block_size_m 
-                if current_block_size_m == TARGET_BLOCK_SIZE_M 
-                else m_index_of_block, 
-                start_of_block_n, res, a, b
+            calculate_block[
+                current_block_size_m,
+                min(TARGET_BLOCK_SIZE_N, N - start_of_block_n),
+            ](start_of_block_m, start_of_block_n, res, a, b)
+
+    fn process_block[
+        current_block_size_m: Int
+    ](m_index_of_block: Int) capturing:
+        @parameter
+        for start_of_block_n in range(0, N, TARGET_BLOCK_SIZE_N):
+            calculate_block[
+                current_block_size_m,
+                min(TARGET_BLOCK_SIZE_N, N - start_of_block_n),
+            ](
+                m_index_of_block * current_block_size_m if current_block_size_m
+                == TARGET_BLOCK_SIZE_M else m_index_of_block,
+                start_of_block_n,
+                res,
+                a,
+                b,
             )
 
     parallelize[process_block[TARGET_BLOCK_SIZE_M]](M // TARGET_BLOCK_SIZE_M)
 
     alias remainder = M % TARGET_BLOCK_SIZE_M
+
     @parameter
     if remainder:
-        process_block[M % TARGET_BLOCK_SIZE_M](M - M % TARGET_BLOCK_SIZE_M)
+        process_block_any_size[M % TARGET_BLOCK_SIZE_M](
+            start_of_block_m=M - remainder
+        )
