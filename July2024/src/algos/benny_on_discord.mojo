@@ -61,8 +61,7 @@ fn matmul[
                 current_block_size_m,
                 min(TARGET_BLOCK_SIZE_N, N - start_of_block_n),
             ](
-                m_index_of_block * current_block_size_m if current_block_size_m
-                == TARGET_BLOCK_SIZE_M else m_index_of_block,
+                m_index_of_block * current_block_size_m,
                 start_of_block_n,
                 res,
                 a,
