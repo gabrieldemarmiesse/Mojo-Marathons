@@ -23,10 +23,12 @@ struct Matrix[Type: DType, rows: Int, cols: Int]:
     fn __del__(owned self):
         # print("freeing matrix with pointer", int(self.data))
         self.data.free()
-
+    
+    @always_inline
     fn __getitem__(self, y: Int, x: Int) -> Scalar[Type]:
         return self.load[1](y, x)
 
+    @always_inline
     fn __setitem__(inout self, y: Int, x: Int, value: Scalar[Type]):
         self.store[1](y, x, value)
 

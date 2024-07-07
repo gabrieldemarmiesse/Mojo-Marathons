@@ -12,9 +12,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 import sys
 import matplotlib.colors
+from pathlib import Path
 
-
-def get_dataframes_with_identical_columns():
+def get_dataframes_with_identical_columns_and_rows():
     file1 = sys.argv[1]
     file2 = sys.argv[2]
 
@@ -26,49 +26,57 @@ def get_dataframes_with_identical_columns():
 
     df1 = df1.drop(cols1 - cols2, axis=1)
     df2 = df2.drop(cols2 - cols1, axis=1)
+
+    # drop the rows that don't have the same M, N, K
+    df1 = df1.set_index(["M", " N", " K"])
+    df2 = df2.set_index(["M", " N", " K"])
+
+    df1 = df1.loc[df2.index]
+    df2 = df2.loc[df1.index]
+
     return df1, df2
 
 
 def main():
-    df1, df2 = get_dataframes_with_identical_columns()
+    df1, df2 = get_dataframes_with_identical_columns_and_rows()
+
 
     df = (df2 - df1) * 100 / df1
-
     # now we plot the percentage difference
     # the x axis is the column names (data types) and the y axis is the row names (M, N, K)
-    df_without_mnk = df.drop(["M", " N", " K"], axis=1)
+    print(df.index)
     color_limit = 50
     norm = matplotlib.colors.TwoSlopeNorm(
         vmin=-color_limit, vcenter=0, vmax=color_limit
     )
     plt.imshow(
-        df_without_mnk.values, cmap="RdYlGn", interpolation="nearest", norm=norm
+        df.values, cmap="RdYlGn", interpolation="nearest", norm=norm
     )
-    plt.xticks(range(len(df_without_mnk.columns)), df_without_mnk.columns)
+    plt.xticks(range(len(df.columns)), df.columns)
     plt.yticks(
         range(len(df.index)),
         [
-            f"{df1['M'][i]}, {df1[' N'][i]}, {df1[' K'][i]}"
-            for i in range(len(df.index))
+            f"{row_m}, {row_n}, {row_k}"
+            for row_m, row_n, row_k in df.index
         ],
     )
     plt.colorbar()
 
     # Annotate each cell with the numeric value
-    for i in range(len(df_without_mnk)):
-        for j in range(len(df_without_mnk.columns)):
+    for i in range(len(df)):
+        for j in range(len(df.columns)):
             plt.text(
                 j,
                 i,
-                f"{df_without_mnk.values[i, j]:.1f}",
+                f"{df.values[i, j]:.1f}",
                 ha="center",
                 va="center",
                 color="black",
             )
 
     plt.title(
-        f'Improvements {sys.argv[1].removesuffix(".csv")} ->'
-        f' {sys.argv[2].removesuffix(".csv")}'
+        f'Improvements {Path(sys.argv[1]).stem} ->'
+        f' {Path(sys.argv[2]).stem}'
     )
 
     plt.show()

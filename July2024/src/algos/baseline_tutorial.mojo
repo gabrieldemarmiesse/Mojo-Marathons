@@ -28,4 +28,3 @@ fn matmul[
                     vectorize[dot, nelts, size=tile_x]()
 
     parallelize[calc_row](M, 8)
-    print("done")
