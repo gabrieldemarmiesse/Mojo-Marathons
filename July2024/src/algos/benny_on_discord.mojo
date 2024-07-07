@@ -29,13 +29,12 @@ fn calculate_block[
             var acc = acc + m * current_block_size_n
 
             fn inner_n[simd_size: Int](position_within_n: Int) capturing:
-                SIMD[size=simd_size].store(
-                    acc,
+                acc.store[width=simd_size](
                     position_within_n,
-                    SIMD[size=simd_size]
-                    .load(left_of_b_at_k, start_of_block_n + position_within_n)
+                    left_of_b_at_k
+                    .load[width=simd_size](start_of_block_n + position_within_n)
                     .fma(
-                        a_val, SIMD[size=simd_size].load(acc, position_within_n)
+                        a_val, acc.load[width=simd_size](position_within_n)
                     ),
                 )
 

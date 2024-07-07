@@ -31,10 +31,10 @@ struct Matrix[Type: DType, rows: Int, cols: Int]:
         self.store[1](y, x, value)
 
     fn load[Nelts: Int](self, y: Int, x: Int) -> SIMD[Type, Nelts]:
-        return SIMD[size=Nelts].load(self.data, y * cols + x)
+        return self.data.load[width=Nelts](y * cols + x)
 
     fn store[Nelts: Int](inout self, y: Int, x: Int, value: SIMD[Type, Nelts]):
-        SIMD[size=Nelts].store(self.data, y * cols + x, value)
+        self.data.store[width=Nelts](y * cols + x, value)
 
     @always_inline
     fn get_pointer(self, y: Int, x: Int) -> DTypePointer[Type]:
